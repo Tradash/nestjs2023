@@ -5,6 +5,8 @@ import { IUserResponse } from "./types/userResponse.interface";
 import { LoginUserDto } from "./dto/login.dto";
 import { Request } from "express";
 import { IExpressRequest } from "./types/expressRequest.interface";
+import { User } from "./decorators/user.decorator";
+import { UserEntity } from "./user.entity";
 
 @Controller()
 export class UserController {
@@ -26,7 +28,7 @@ export class UserController {
     }
 
     @Get("users")
-    async currentUser(@Req() request: IExpressRequest): Promise<IUserResponse> {
-        return this.userService.buildUserResponse(request.user)
+    async currentUser(@User() user: UserEntity): Promise<IUserResponse> {
+        return this.userService.buildUserResponse(user)
     }
 }
