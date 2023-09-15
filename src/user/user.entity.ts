@@ -1,3 +1,4 @@
+import { salt } from "@app/config";
 import { createHashWithSalt } from "@app/utils/createHashWithSalt";
 import { Hash } from "node:crypto";
 import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
@@ -19,12 +20,12 @@ export class UserEntity {
     @Column({ default: "" })
     image: string;
 
-    @Column()
+    @Column({ select: false })
     password: string;
 
     @BeforeInsert()
     hashPassword() {
-        this.password = createHashWithSalt(this.password, "10")
+        this.password = createHashWithSalt(this.password, salt)
     }
 
 }
