@@ -8,6 +8,7 @@ import { JWT_SECRET, salt } from "@app/config";
 import { IUserResponse } from "./types/userResponse.interface";
 import { LoginUserDto } from "./dto/login.dto";
 import { createHashWithSalt } from "@app/utils/createHashWithSalt";
+import { UpdateUserDto } from "./dto/updateUser.dto";
 
 
 @Injectable()
@@ -59,6 +60,12 @@ export class UserService {
 
     async findById(id: number): Promise<UserEntity> {
         return this.userRepository.findOne({ where: { id: id } })
+    }
+
+    async updateUser(userId: number, updateUserDto: UpdateUserDto): Promise<UserEntity> {
+        const user = await this.findById(userId)
+        Object.assign(user, updateUserDto)
+        return await this.userRepository.save(user)
     }
 
 }
