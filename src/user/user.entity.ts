@@ -1,7 +1,8 @@
+import { ArticleEntity } from "@app/article/article.entity";
 import { salt } from "@app/config";
 import { createHashWithSalt } from "@app/utils/createHashWithSalt";
 import { Hash } from "node:crypto";
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ name: 'users' })
 export class UserEntity {
@@ -27,5 +28,8 @@ export class UserEntity {
     hashPassword() {
         this.password = createHashWithSalt(this.password, salt)
     }
+
+    @OneToMany(() => ArticleEntity, (article) => article.author)
+    articles: ArticleEntity[]
 
 }
