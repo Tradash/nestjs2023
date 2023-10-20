@@ -3,13 +3,50 @@ import { Injectable, HttpException, HttpStatus } from "@nestjs/common";
 import { CreateArticleDto } from "./dto/createArticle.dto";
 import { ArticleEntity } from "./article.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import { DeleteResult, Repository } from "typeorm";
+import { DeleteResult, Repository, getRepository } from "typeorm";
 import { IArticleResponse } from "./types/articleResponse.interface";
 import slugify from "slugify"
+import { IArticlesResponse } from "./types/articlesResponse.interface";
+import dataSource from "@app/db.config";
 
 @Injectable()
 export class ArticleService {
-    constructor(@InjectRepository(ArticleEntity) private readonly articleRepository: Repository<ArticleEntity>) { }
+    constructor(@InjectRepository(ArticleEntity) private readonly articleRepository: Repository<ArticleEntity>,
+        @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>) { }
+
+    async findAll(currentUserId: number, query: any): Promise<IArticlesResponse> {
+        const queryBuilder = dataSource.getRepository(ArticleEntity).createQueryBuilder('articles').leftJoinAndSelect('articles.author', 'author');
+
+        queryBuilder.orderBy('articles.createdAt', "DESC");
+
+        const articlesCount = await queryBuilder.getCount()
+
+
+        if (query.author) {
+            const author = await this.userRepository.findOne({
+                where: { username: query.author }
+            });
+
+            queryBuilder.andWhere('articles.authorId = :id', { id: author.id })
+        }
+
+        if (query.tag) {
+            queryBuilder.andWhere('articles.tagList LIKE :tag', { tag: `%${query.tag}%` })
+        }
+
+        if (query.limit) {
+            queryBuilder.limit(query.limit)
+        }
+
+        if (query.offset) {
+            queryBuilder.offset(query.offset)
+        }
+
+        const articles = await queryBuilder.getMany()
+
+        return { articles, articlesCount }
+    }
+
     async createArticle(currentUser: UserEntity, createArticleDto: CreateArticleDto): Promise<ArticleEntity> {
         const article = new ArticleEntity()
         Object.assign(article, createArticleDto)
