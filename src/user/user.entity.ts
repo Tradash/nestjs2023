@@ -2,7 +2,7 @@ import { ArticleEntity } from "@app/article/article.entity";
 import { salt } from "@app/config";
 import { createHashWithSalt } from "@app/utils/createHashWithSalt";
 import { Hash } from "node:crypto";
-import { BeforeInsert, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ name: 'users' })
 export class UserEntity {
@@ -31,5 +31,9 @@ export class UserEntity {
 
     @OneToMany(() => ArticleEntity, (article) => article.author)
     articles: ArticleEntity[]
+
+    @ManyToMany(() => ArticleEntity)
+    @JoinTable()
+    favorites: ArticleEntity[]
 
 }
