@@ -26,7 +26,7 @@ export class ArticleController {
 
     @Get(":slug")
     async getSingleArticle(@Param('slug') slug: string): Promise<IArticleResponse> {
-        const article = await this.articleService.findBySlag(slug);
+        const article = await this.articleService.findBySlug(slug);
         return this.articleService.buildArticleResponse(article)
 
     }
@@ -50,6 +50,13 @@ export class ArticleController {
     @UseGuards(AuthGuard)
     async addArticleToFavorites(@User('id') currentUserId: number, @Param('slug') slug: string): Promise<IArticleResponse> {
         const article = await this.articleService.addArticleToFavorites(slug, currentUserId)
+        return this.articleService.buildArticleResponse(article)
+    }
+
+    @Delete(":slug/favorite")
+    @UseGuards(AuthGuard)
+    async deleteArticleToFavorites(@User('id') currentUserId: number, @Param('slug') slug: string): Promise<IArticleResponse> {
+        const article = await this.articleService.deleteArticleFromFavorites(slug, currentUserId)
         return this.articleService.buildArticleResponse(article)
     }
 

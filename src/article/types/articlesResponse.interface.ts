@@ -1,7 +1,8 @@
 import { ArticleEntity } from "../article.entity"
+import { ArticleType } from "./article.type";
 
 export interface IArticlesResponse {
-    articles: ArticleEntity[];
+    articles: ArticleType[];
     articlesCount: number;
 
 }
