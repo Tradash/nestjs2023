@@ -15,13 +15,16 @@ export class ProfileService {
         @InjectRepository(FollowEntity)
         private readonly followRepository: Repository<FollowEntity>
     ) { }
+
     async getProfile(currentUserId: number, profileUsername: string): Promise<TProfile> {
         const user = await this.userRepository.findOne({ where: { username: profileUsername } })
         if (!user) {
             throw new HttpException('Profile does not exist', HttpStatus.NOT_FOUND)
         }
 
-        return { ...user, following: false }
+        const follow = currentUserId ? await this.followRepository.findOne({ where: { followerId: currentUserId, followingId: user.id } }) : false
+
+        return { ...user, following: Boolean(follow) }
     }
 
     async followProfile(currentUserId: number, profileUsername: string): Promise<TProfile> {
@@ -44,6 +47,23 @@ export class ProfileService {
         }
 
         return { ...user, following: true }
+
+    }
+
+    async unfollowProfile(currentUserId: number, profileUsername: string): Promise<TProfile> {
+        const user = await this.userRepository.findOne({ where: { username: profileUsername } })
+        if (!user) {
+            throw new HttpException('Profile does not exist', HttpStatus.NOT_FOUND)
+        }
+
+        if (currentUserId === user.id) {
+            throw new HttpException('Follower and followng cant be equal', HttpStatus.BAD_REQUEST)
+        }
+
+        await this.followRepository.delete({ followerId: currentUserId, followingId: user.id })
+
+
+        return { ...user, following: false }
 
     }
 
