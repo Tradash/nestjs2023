@@ -29,7 +29,7 @@ export class UserService {
         }
 
         if (userByUsername) {
-            errorResponse.errors['name'] = 'has already been taken'
+            errorResponse.errors['username'] = 'has already been taken'
         }
 
         if (userByEmail || userByUsername) {
